@@ -24,4 +24,6 @@ def get_book_by_id(id: int, db: Session = Depends(deps.get_db)):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def add_book(request: schemas.Book, db: Session = Depends(deps.get_db)):
+    """Add new book to the database
+    """
     return book.add(db, request)
