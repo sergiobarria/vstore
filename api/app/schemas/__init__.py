@@ -1,1 +1,1 @@
-from .book import Book, BookInDatabase
+from .book import BookSchema, BookInDatabase
