@@ -3,5 +3,15 @@
   // "python.linting.flake8Enabled": true,
   // "python.linting.enabled": true,
   "python.linting.lintOnSave": true,
-  "python.formatting.provider": "autopep8"
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": ["--line-length=88"],
+  "python.sortImports.args": ["--profile=black"],
+  "python.linting.flake8Enabled": true,
+  "python.linting.enabled": true,
+  "python.linting.flake8Args": ["--max-line-length=88"],
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  }
 }
