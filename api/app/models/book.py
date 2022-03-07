@@ -1,9 +1,7 @@
 import enum
 
-from sqlalchemy import Column, Integer, Boolean, ForeignKey, String, Text, Float, Enum
-from sqlalchemy.orm import relationship
-
 from app.database.base_class import Base
+from sqlalchemy import Column, String
 
 
 class Language(enum.Enum):
@@ -15,7 +13,7 @@ class Language(enum.Enum):
 #     fantasy =
 
 
-class BookModel(Base):
+class Book(Base):
     """Base class for the database Book model"""
 
     __tablename__ = "books"

@@ -1,6 +1,4 @@
-from typing import Any
 from uuid import UUID
-from sqlalchemy_utils import UUIDType
 from pydantic import BaseModel
 
 
@@ -8,7 +6,7 @@ class BookBase(BaseModel):
     title: str
 
 
-class BookSchema(BookBase):
+class Book(BookBase):
     """Book class for reading and returning data from the API"""
 
     class Config:

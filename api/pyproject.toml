@@ -16,7 +16,8 @@ greenlet = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
-autopep8 = "^1.6.0"
+black = "^22.1.0"
+isort = "^5.10.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

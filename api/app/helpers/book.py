@@ -1,15 +1,14 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
-from sqlalchemy import insert, select, delete, update
-from app.models import BookModel
-
 from app import models, schemas
+from fastapi import HTTPException, status
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.ext.asyncio import AsyncResult
+from sqlalchemy.orm import Session
 
 
-async def get_all(db: Session, skip: int = 0, limit: int = 100) -> List[models.BookModel]:
+async def get(db: Session, skip: int = 0, limit: int = 100) -> List[models.Book]:
     """Get all books from the database
 
     Args:
@@ -17,8 +16,9 @@ async def get_all(db: Session, skip: int = 0, limit: int = 100) -> List[models.B
         skip (int, optional): the ammount of items to skip (useful for pagination).
         limit (int, optional): the max limit of items to retrieve for each request.
     """
-    query = await db.execute(select(models.BookModel))
-    return query.scalars().all()
+    query = select(models.Book).offset(skip).limit(limit)
+    result: AsyncResult = await db.execute(query)
+    return result.scalars().all()
 
 
 async def get_by_id(db: Session, id: UUID) -> schemas.BookInDatabase:
@@ -27,26 +27,24 @@ async def get_by_id(db: Session, id: UUID) -> schemas.BookInDatabase:
     Args:
         db (Session): database to interact with
     """
-    query = await db.execute(select(models.BookModel).where(BookModel.id == id))
-    result = query.scalars().first()
+    query = select(models.Book).where(models.Book.id == id)
+    result: AsyncResult = await db.execute(query)
 
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Item with ID: {id} does not exist")
-
-    return result
+    return result.scalars().first()
 
 
-async def add(db: Session, book: schemas.BookSchema):
+async def add(db: Session, book: schemas.Book):
     """Add book to the database
 
     Args:
         db (Session): database to interact with
         book (BookSchema): book to add to the database
     """
-    query = insert(models.BookModel).values(**book.dict())
-    await db.execute(query)
-    return models.BookModel(**book.dict())
+    query = insert(models.Book).values(**book.dict())
+    result: AsyncResult = await db.execute(query)
+    print(result.__dict__)
+    # return models.Book(**book.dict())
+    return result.scalars().first()
 
 
 async def delete_one(db: Session, id: UUID) -> None:
@@ -56,24 +54,27 @@ async def delete_one(db: Session, id: UUID) -> None:
         db (Session): database to interact with
         id (UUID): Book ID
     """
-    book = await db.execute(select(models.BookModel).where(BookModel.id == id))
+    book = await db.execute(select(models.Book).where(models.Book.id == id))
 
     if not book:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Item with ID: {id} does not exist")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Item with ID: {id} does not exist",
+        )
 
-    query = delete(models.BookModel).where(BookModel.id == id)
+    query = delete(models.Book).where(models.Book.id == id)
     await db.execute(query)
 
 
-async def update_one(db: Session, id: UUID, book: schemas.BookSchema) -> schemas.BookInDatabase:
+async def update_one(
+    db: Session, id: UUID, book: schemas.Book
+) -> schemas.BookInDatabase:
     """Update book from database
 
     Args:
         db (Session): database to interact with
         id (UUID): Book ID
     """
-    query = update(models.BookModel).where(
-        BookModel.id == id).values(**book.dict())
+    query = update(models.Book).where(models.Book.id == id).values(**book.dict())
     await db.execute(query)
     return {**book.dict()}
