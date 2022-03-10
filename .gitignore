@@ -1,6 +1,9 @@
 __pycache__/
 .DS_Store
 .venv/
+.env
+
+**/*.sql
 
 # For Vue App
 # Logs
