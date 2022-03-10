@@ -1,5 +1,8 @@
-from typing import List
-from pydantic import AnyHttpUrl, BaseSettings
+import os
+from functools import lru_cache
+from typing import List, Union
+
+from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
@@ -9,6 +12,26 @@ class Settings(BaseSettings):
         Backend server application for the VStore book store app
     """
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:3000"]
+
+    # Database Info
+    DB_USER: str = os.getenv("DB_USER")
+    DB_PASSWORD: str = os.getenv("DB_PASSWORD")
+    DB_HOST: str = os.getenv("DB_HOST")
+    DB_PORT: Union[int, str] = os.getenv("DB_PORT")
+    DB_NAME: str = os.getenv("DB_NAME")
+
+    SQLITE_ASYNC_DB_URL: str = "sqlite+aiosqlite:///vstore.db"
+    PG_DATABASE_URL: PostgresDsn | None = (
+        f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    )
+
+    class Config:
+        env_file = ".env"
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
 
 
 settings = Settings()

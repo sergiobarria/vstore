@@ -1,59 +1,90 @@
 from typing import List
 from uuid import UUID
 
-from app import schemas
-from app.dependencies import get_db
-from app.helpers import book
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy.orm import Session
+from app.api.deps import get_session
+from app.models import Book, BookCreate, BookRead, BookUpdate
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 router = APIRouter()
 
-
-@router.get("/", response_model=List[schemas.BookInDatabase])
-async def get_all_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Get all books from the Database"""
-    requested_books = await book.get(db, skip=skip, limit=limit)
-
-    return requested_books
+# TODO: SQLModel does not have a wrapper yet for AsyncSession
+# TODO: Update import once it's available
 
 
-@router.get("/{id}", response_model=schemas.BookInDatabase)
-async def get_book_by_id(id: UUID, db: Session = Depends(get_db)):
+@router.get("/", response_model=List[BookRead])
+async def get_books(
+    *, skip: int = 0, limit: int = 100, session: AsyncSession = Depends(get_session)
+):
+    """Get all books from database"""
+    q = select(Book).offset(skip).limit(limit)
+    result = await session.execute(q)
+    books = result.scalars().all()
+    return books
+
+
+@router.post("/", response_model=BookRead, status_code=status.HTTP_201_CREATED)
+async def add_book(*, session: AsyncSession = Depends(get_session), book: BookCreate):
+    """Add new book to database"""
+    db_book = Book.from_orm(book)
+    session.add(db_book)
+    await session.commit()
+    await session.refresh(db_book)
+    return db_book
+
+
+@router.get("/{book_id}", response_model=BookRead)
+async def get_book_by_id(
+    *, book_id: UUID, session: AsyncSession = Depends(get_session)
+):
     """Get single book by ID"""
-    requested_book = await book.get_by_id(db, id)
+    book = await session.get(Book, book_id)
 
-    if not requested_book:
+    if not book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Book with ID of {id} does not exists",
+            detail=f"Book with ID of {book_id} not found",
         )
 
-    return requested_book
+    return book
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def add_book(request: schemas.Book, db: Session = Depends(get_db)):
-    """Add new book to the database"""
-    created_book = await book.add(db, request)
+@router.patch("/{book_id}", response_model=BookRead)
+async def update_book(
+    *, book_id: UUID, book: BookUpdate, session: AsyncSession = Depends(get_session)
+):
+    """Update book by ID"""
+    db_book = await session.get(Book, book_id)
 
-    if not created_book:
+    if not db_book:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="There was an error creating new item",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with ID of {book_id} not found",
         )
 
-    return created_book
+    book_data = book.dict(exclude_unset=True)
+
+    for key, value in book_data.items():
+        setattr(db_book, key, value)
+
+    session.add(db_book)
+    await session.commit()
+    await session.refresh(db_book)
+    return db_book
 
 
-@router.delete("/{id}")
-async def delete_book(id: UUID, db: Session = Depends(get_db)):
-    """Delete book from database"""
-    await book.delete_one(db, id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{book_id}")
+async def delete_book(*, book_id: UUID, session: AsyncSession = Depends(get_session)):
+    """Delete book by ID"""
+    book = await session.get(Book, book_id)
 
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with ID of {book_id} not found",
+        )
 
-@router.put("/{id}")
-async def update_book(id: UUID, request: schemas.Book, db: Session = Depends(get_db)):
-    """Update book from database"""
-    return await book.update_one(db, id, request)
+    await session.delete(book)
+    await session.commit()
+    return {"status": "ok"}
