@@ -10,7 +10,7 @@ from sqlmodel import select
 router = APIRouter()
 
 
-@router.get("/", response_model=List[GenreCreate])
+@router.get("/", response_model=List[GenreRead])
 async def get_genres(*, session: AsyncSession = Depends(get_session)):
     """Get all genres from DB"""
     q = select(Genre)

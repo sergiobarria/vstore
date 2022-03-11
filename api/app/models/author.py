@@ -16,7 +16,9 @@ class Author(AuthorBase, table=True):
 
     __tablename__ = "authors"
 
-    id: UUID | None = Field(default=uuid4, primary_key=True, index=True, nullable=False)
+    id: UUID | None = Field(
+        default_factory=uuid4, primary_key=True, index=True, nullable=False
+    )
 
 
 class AuthorCreate(AuthorBase):

@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID, uuid4
 
 from sqlmodel import Field, SQLModel
 
@@ -14,8 +14,8 @@ class Genre(GenreBase, table=True):
 
     __tablename__ = "genres"
 
-    id: uuid.UUID | None = Field(
-        default=uuid.uuid4, primary_key=True, index=True, nullable=False
+    id: UUID | None = Field(
+        default_factory=uuid4, primary_key=True, index=True, nullable=False
     )
 
 
@@ -28,7 +28,7 @@ class GenreCreate(GenreBase):
 class GenreRead(GenreBase):
     """Response model for reading docs from the database an return them to the user"""
 
-    id: uuid.UUID
+    id: UUID
 
 
 class GenreUpdate(SQLModel):

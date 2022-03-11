@@ -1,9 +1,10 @@
 import enum
 from typing import List
+from uuid import UUID, uuid4
 
 from pydantic import condecimal
 from sqlalchemy import ARRAY
-from sqlmodel import Column, Enum, Field, Float, SQLModel, String
+from sqlmodel import Column, Field, Float, SQLModel, String
 
 
 class Language(enum.Enum):
@@ -18,9 +19,7 @@ class BookBase(SQLModel):
     summary: str = Field(max_length=5000)
     hard_cover_price: condecimal(decimal_places=2, ge=0) | None = Field(default=0)
     paperback_price: condecimal(decimal_places=2, ge=0) | None = Field(default=0)
-    language: Language = Field(
-        sa_column=Column(Enum(Language), default=Language.english, nullable=False)
-    )
+    # language: Language = Field(sa_column=Column(Enum(Language)))
     published_year: int = Field(ge=0)
     num_of_pages: int = Field(ge=0)
     reading_age: int | None = None
@@ -42,7 +41,7 @@ class Book(BookBase, table=True):
 
     __tablename__ = "books"
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: UUID | None = Field(default_factory=uuid4, primary_key=True, index=True)
 
 
 class BookCreate(BookBase):
@@ -54,7 +53,7 @@ class BookCreate(BookBase):
 class BookRead(BookBase):
     """Model for reading docs from the database and return them to the user"""
 
-    id: int
+    id: UUID
 
 
 class BookUpdate(SQLModel):

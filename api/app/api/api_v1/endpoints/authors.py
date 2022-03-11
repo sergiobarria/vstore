@@ -10,7 +10,7 @@ from sqlmodel import select
 router = APIRouter()
 
 
-@router.get("/", response_model=List[AuthorCreate])
+@router.get("/", response_model=List[AuthorRead])
 async def get_authors(*, session: AsyncSession = Depends(get_session)):
     """Get all authors from DB"""
     q = select(Author)

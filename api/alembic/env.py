@@ -1,30 +1,16 @@
 import asyncio
-import os
 from logging.config import fileConfig
 
+from app.models import *  # noqa
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlmodel import SQLModel
 
 from alembic import context
 
-from app.models import Book  # noqa isort:skip
-
-
-def get_url():
-    return "postgresql+asyncpg://%s:%s@%s:%s/%s" % (
-        os.getenv("DB_USER"),
-        os.getenv("DB_PASSWORD"),
-        os.getenv("DB_HOST"),
-        os.getenv("DB_PORT"),
-        os.getenv("DB_NAME"),
-    )
-
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", get_url())
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -54,8 +40,7 @@ def run_migrations_offline():
     script output.
 
     """
-    # url = config.get_main_option("sqlalchemy.url")
-    url = get_url()
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
