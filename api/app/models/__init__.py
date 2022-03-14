@@ -1,3 +1,3 @@
-from .author import Author, AuthorCreate, AuthorRead, AuthorUpdate  # noqa
-from .book import Book, BookCreate, BookRead, BookUpdate  # noqa
-from .genre import Genre, GenreCreate, GenreRead, GenreUpdate  # noqa
+from .author import Author  # noqa
+from .book import Book  # noqa
+from .genre import Genre  # noqa

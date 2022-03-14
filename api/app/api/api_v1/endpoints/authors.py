@@ -1,42 +1,39 @@
 from typing import List
 from uuid import UUID
 
-from app.api.deps import get_session
-from app.models import Author, AuthorCreate, AuthorRead, AuthorUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from app import models, schemas
+from app.database.session import get_session
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[AuthorRead])
-async def get_authors(*, session: AsyncSession = Depends(get_session)):
+@router.get("/", response_model=List[schemas.AuthorRead])
+def get_authors(*, session: Session = Depends(get_session)):
     """Get all authors from DB"""
-    q = select(Author)
-    result = await session.execute(q)
-    authors = result.scalars().all()
+    authors = session.query(models.Author).all()
     return authors
 
 
-@router.post("/", response_model=AuthorRead, status_code=status.HTTP_201_CREATED)
-async def add_author(
-    *, session: AsyncSession = Depends(get_session), author: AuthorCreate
+@router.post(
+    "/", response_model=schemas.AuthorRead, status_code=status.HTTP_201_CREATED
+)
+def add_author(
+    *, session: Session = Depends(get_session), author: schemas.AuthorCreate
 ):
     """Add new author to DB"""
-    db_author = Author.from_orm(author)
+    db_author = models.Author(**author.dict())
     session.add(db_author)
-    await session.commit()
-    await session.refresh(db_author)
+    session.commit()
+    session.refresh(db_author)
     return db_author
 
 
-@router.get("/{author_id}", response_model=AuthorRead)
-async def get_author_by_id(
-    *, author_id: UUID, session: AsyncSession = Depends(get_session)
-):
+@router.get("/{author_id}", response_model=schemas.AuthorRead)
+def get_author_by_id(*, author_id: UUID, session: Session = Depends(get_session)):
     """Get single author by ID"""
-    author = await session.get(Author, author_id)
+    author = session.query(models.Author).filter(models.Author.id == author_id).first()
 
     if not author:
         raise HTTPException(
@@ -47,15 +44,17 @@ async def get_author_by_id(
     return author
 
 
-@router.patch("/{author_id}", response_model=AuthorRead)
-async def update_author(
+@router.put("/{author_id}")
+def update_author(
     *,
     author_id: UUID,
-    author: AuthorUpdate,
-    session: AsyncSession = Depends(get_session),
+    author: schemas.AuthorUpdate,
+    session: Session = Depends(get_session),
 ):
     """Update author by ID"""
-    db_author = await session.get(Author, author_id)
+    db_author = (
+        session.query(models.Author).filter(models.Author.id == author_id).first()
+    )
 
     if not db_author:
         raise HTTPException(
@@ -69,17 +68,15 @@ async def update_author(
         setattr(db_author, key, value)
 
     session.add(db_author)
-    await session.commit()
-    await session.refresh(db_author)
+    session.commit()
+    session.refresh(db_author)
     return db_author
 
 
-@router.delete("/{author_id}")
-async def delete_author(
-    *, author_id: UUID, session: AsyncSession = Depends(get_session)
-):
-    "Delete author by ID"
-    author = await session.get(Author, author_id)
+@router.delete("/{author_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_author(*, author_id: UUID, session: Session = Depends(get_session)):
+    """Delete author by ID"""
+    author = session.query(models.Author).filter_by(id=author_id).first()
 
     if not author:
         raise HTTPException(
@@ -87,6 +84,6 @@ async def delete_author(
             detail=f"Author with ID of {author_id} not found.",
         )
 
-    await session.delete(author)
-    await session.commit()
-    return {"status": "ok"}
+    session.delete(author)
+    session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

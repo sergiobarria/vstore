@@ -1,7 +1,22 @@
+from typing import Generator
+
 from app.core.config import settings
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# For SQLite
-# connect_args = {"check_same_thread": False}
+USER = settings.DB_USERNAME
+PASSWORD = settings.DB_PASSWORD
+HOST = settings.DB_HOST
+PORT = settings.DB_PORT
+NAME = settings.DB_NAME
 
-engine = create_async_engine(settings.PG_DATABASE_URL, echo=True, connect_args={})
+DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}"
+
+engine = create_engine(DATABASE_URL, echo=True)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def get_session() -> Generator:
+    with SessionLocal() as session:
+        yield session

@@ -1,45 +1,41 @@
 from typing import List
 from uuid import UUID
 
-from app.api.deps import get_session
-from app.models import Book, BookCreate, BookRead, BookUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from app import models, schemas
+from app.database.session import get_session
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy.orm import Session
+
+# from sqlmodel import select
 
 router = APIRouter()
 
-# TODO: SQLModel does not have a wrapper yet for AsyncSession
-# TODO: Update import once it's available
 
-
-@router.get("/", response_model=List[BookRead])
+@router.get("/", response_model=List[schemas.BookRead])
 async def get_books(
-    *, skip: int = 0, limit: int = 100, session: AsyncSession = Depends(get_session)
+    *, skip: int = 0, limit: int = 100, session: Session = Depends(get_session)
 ):
     """Get all books from database"""
-    q = select(Book).offset(skip).limit(limit)
-    result = await session.execute(q)
-    books = result.scalars().all()
+    books = session.query(models.Book).offset(skip).limit(limit).all()
     return books
 
 
-@router.post("/", response_model=BookRead, status_code=status.HTTP_201_CREATED)
-async def add_book(*, session: AsyncSession = Depends(get_session), book: BookCreate):
+@router.post("/", response_model=schemas.BookRead, status_code=status.HTTP_201_CREATED)
+async def add_book(
+    *, session: Session = Depends(get_session), book: schemas.BookCreate
+):
     """Add new book to database"""
-    db_book = Book.from_orm(book)
+    db_book = models.Book(**book.dict())
     session.add(db_book)
-    await session.commit()
-    await session.refresh(db_book)
+    session.commit()
+    session.refresh(db_book)
     return db_book
 
 
-@router.get("/{book_id}", response_model=BookRead)
-async def get_book_by_id(
-    *, book_id: UUID, session: AsyncSession = Depends(get_session)
-):
+@router.get("/{book_id}", response_model=schemas.BookRead)
+async def get_book_by_id(*, book_id: UUID, session: Session = Depends(get_session)):
     """Get single book by ID"""
-    book = await session.get(Book, book_id)
+    book = session.query(models.Book).filter_by(id=book_id).first()
 
     if not book:
         raise HTTPException(
@@ -50,12 +46,12 @@ async def get_book_by_id(
     return book
 
 
-@router.patch("/{book_id}", response_model=BookRead)
+@router.put("/{book_id}", response_model=schemas.BookRead)
 async def update_book(
-    *, book_id: UUID, book: BookUpdate, session: AsyncSession = Depends(get_session)
+    *, book_id: UUID, book: schemas.BookUpdate, session: Session = Depends(get_session)
 ):
     """Update book by ID"""
-    db_book = await session.get(Book, book_id)
+    db_book = session.query(models.Book).filter_by(id=book_id).first()
 
     if not db_book:
         raise HTTPException(
@@ -69,15 +65,15 @@ async def update_book(
         setattr(db_book, key, value)
 
     session.add(db_book)
-    await session.commit()
-    await session.refresh(db_book)
+    session.commit()
+    session.refresh(db_book)
     return db_book
 
 
 @router.delete("/{book_id}")
-async def delete_book(*, book_id: UUID, session: AsyncSession = Depends(get_session)):
+async def delete_book(*, book_id: UUID, session: Session = Depends(get_session)):
     """Delete book by ID"""
-    book = await session.get(Book, book_id)
+    book = session.query(models.Book).filter_by(id=book_id).first()
 
     if not book:
         raise HTTPException(
@@ -85,6 +81,6 @@ async def delete_book(*, book_id: UUID, session: AsyncSession = Depends(get_sess
             detail=f"Book with ID of {book_id} not found",
         )
 
-    await session.delete(book)
-    await session.commit()
-    return {"status": "ok"}
+    session.delete(book)
+    session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

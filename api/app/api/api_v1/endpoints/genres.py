@@ -1,33 +1,30 @@
 from typing import List
 from uuid import UUID
 
-from app.api.deps import get_session
-from app.models import Genre, GenreCreate, GenreRead, GenreUpdate
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from app import models, schemas
+from app.database.session import get_session
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[GenreRead])
-async def get_genres(*, session: AsyncSession = Depends(get_session)):
+@router.get("/", response_model=List[schemas.GenreRead])
+async def get_genres(*, session: Session = Depends(get_session)):
     """Get all genres from DB"""
-    q = select(Genre)
-    result = await session.execute(q)
-    genres = result.scalars().all()
+    genres = session.query(models.Genre).all()
     return genres
 
 
-@router.post("/", response_model=GenreRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.GenreRead, status_code=status.HTTP_201_CREATED)
 async def add_genre(
-    *, session: AsyncSession = Depends(get_session), genre: GenreCreate
+    *, session: Session = Depends(get_session), genre: schemas.GenreCreate
 ):
     """Add new genre to DB"""
-    db_genre = Genre.from_orm(genre)
+    db_genre = models.Genre(**genre.dict())
     session.add(db_genre)
-    await session.commit()
-    await session.refresh(db_genre)
+    session.commit()
+    session.refresh(db_genre)
     return db_genre
 
 
@@ -36,12 +33,15 @@ async def add_genre(
 #     pass
 
 
-@router.patch("/{genre_id}", response_model=GenreRead)
+@router.put("/{genre_id}", response_model=schemas.GenreRead)
 async def update_genre(
-    *, genre_id: UUID, genre: GenreUpdate, session: AsyncSession = Depends(get_session)
+    *,
+    genre_id: UUID,
+    genre: schemas.GenreUpdate,
+    session: Session = Depends(get_session),
 ):
     """Update genre by ID"""
-    db_genre = await session.get(Genre, genre_id)
+    db_genre = session.query(models.Genre).filter_by(id=genre_id).first()
 
     if not db_genre:
         raise HTTPException(
@@ -49,21 +49,22 @@ async def update_genre(
             detail=f"Genre with ID of {genre_id} not found.",
         )
 
+    # eclude_unset removes fields not provided in the request
     genre_data = genre.dict(exclude_unset=True)
 
     for key, value in genre_data.items():
         setattr(db_genre, key, value)
 
     session.add(db_genre)
-    await session.commit()
-    await session.refresh(db_genre)
+    session.commit()
+    session.refresh(db_genre)
     return db_genre
 
 
 @router.delete("/{genre_id}")
-async def delete_genre(*, genre_id: UUID, session: AsyncSession = Depends(get_session)):
+async def delete_genre(*, genre_id: UUID, session: Session = Depends(get_session)):
     """Delete genre"""
-    genre = await session.get(Genre, genre_id)
+    genre = session.query(models.Genre).filter_by(id=genre_id).first()
 
     if not genre:
         raise HTTPException(
@@ -71,6 +72,6 @@ async def delete_genre(*, genre_id: UUID, session: AsyncSession = Depends(get_se
             detail=f"Genre with ID of {genre_id} not found.",
         )
 
-    await session.delete(genre)
-    await session.commit()
-    return {"status": "ok"}
+    session.delete(genre)
+    session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
