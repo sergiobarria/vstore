@@ -1,6 +1,10 @@
+from typing import List
 from uuid import UUID
 
 from app.schemas.base import BaseSchema
+
+# if TYPE_CHECKING:
+from app.schemas.book import BookSimple
 from pydantic import Field
 
 
@@ -28,3 +32,16 @@ class AuthorUpdate(AuthorBase):
     """Response model for updating an author"""
 
     ...
+
+
+class AuthorSimple(BaseSchema):
+    """Respons model that includes only ID and name from the author"""
+
+    id: UUID
+    name: str
+
+
+class AuthorSchema(AuthorRead):
+    """Response model for retrieving an author and including related books"""
+
+    books: List[BookSimple] = []

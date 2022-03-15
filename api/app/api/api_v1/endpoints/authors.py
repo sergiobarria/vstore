@@ -1,27 +1,24 @@
 from typing import List
 from uuid import UUID
 
-from app import models, schemas
+from app import models
 from app.database.session import get_session
+from app.schemas.author import AuthorCreate, AuthorRead, AuthorSchema, AuthorUpdate
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.AuthorRead])
+@router.get("/", response_model=List[AuthorSchema])
 def get_authors(*, session: Session = Depends(get_session)):
     """Get all authors from DB"""
     authors = session.query(models.Author).all()
     return authors
 
 
-@router.post(
-    "/", response_model=schemas.AuthorRead, status_code=status.HTTP_201_CREATED
-)
-def add_author(
-    *, session: Session = Depends(get_session), author: schemas.AuthorCreate
-):
+@router.post("/", response_model=AuthorRead, status_code=status.HTTP_201_CREATED)
+def add_author(*, session: Session = Depends(get_session), author: AuthorCreate):
     """Add new author to DB"""
     db_author = models.Author(**author.dict())
     session.add(db_author)
@@ -30,7 +27,7 @@ def add_author(
     return db_author
 
 
-@router.get("/{author_id}", response_model=schemas.AuthorRead)
+@router.get("/{author_id}", response_model=AuthorRead)
 def get_author_by_id(*, author_id: UUID, session: Session = Depends(get_session)):
     """Get single author by ID"""
     author = session.query(models.Author).filter(models.Author.id == author_id).first()
@@ -48,7 +45,7 @@ def get_author_by_id(*, author_id: UUID, session: Session = Depends(get_session)
 def update_author(
     *,
     author_id: UUID,
-    author: schemas.AuthorUpdate,
+    author: AuthorUpdate,
     session: Session = Depends(get_session),
 ):
     """Update author by ID"""

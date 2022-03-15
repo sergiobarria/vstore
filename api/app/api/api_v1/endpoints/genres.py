@@ -1,25 +1,24 @@
 from typing import List
 from uuid import UUID
 
-from app import models, schemas
+from app import models
 from app.database.session import get_session
+from app.schemas.genre import GenreCreate, GenreRead, GenreUpdate
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.GenreRead])
+@router.get("/", response_model=List[GenreRead])
 async def get_genres(*, session: Session = Depends(get_session)):
     """Get all genres from DB"""
     genres = session.query(models.Genre).all()
     return genres
 
 
-@router.post("/", response_model=schemas.GenreRead, status_code=status.HTTP_201_CREATED)
-async def add_genre(
-    *, session: Session = Depends(get_session), genre: schemas.GenreCreate
-):
+@router.post("/", response_model=GenreRead, status_code=status.HTTP_201_CREATED)
+async def add_genre(*, session: Session = Depends(get_session), genre: GenreCreate):
     """Add new genre to DB"""
     db_genre = models.Genre(**genre.dict())
     session.add(db_genre)
@@ -33,11 +32,11 @@ async def add_genre(
 #     pass
 
 
-@router.put("/{genre_id}", response_model=schemas.GenreRead)
+@router.put("/{genre_id}", response_model=GenreRead)
 async def update_genre(
     *,
     genre_id: UUID,
-    genre: schemas.GenreUpdate,
+    genre: GenreUpdate,
     session: Session = Depends(get_session),
 ):
     """Update genre by ID"""

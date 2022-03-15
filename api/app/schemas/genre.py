@@ -26,3 +26,10 @@ class GenreUpdate(GenreBase):
     """Response model for updating a genre"""
 
     ...
+
+
+class GenreWithBook(BaseSchema):
+    """Response model for genre including just ID and name"""
+
+    id: UUID
+    name: str

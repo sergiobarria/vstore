@@ -1,9 +1,13 @@
-from typing import List
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID
 
 from app.models.book import Language
 from app.schemas.base import BaseSchema
+from app.schemas.genre import GenreWithBook
 from pydantic import Field
+
+if TYPE_CHECKING:
+    from app.schemas.author import AuthorSimple
 
 
 class BookBase(BaseSchema):
@@ -36,7 +40,7 @@ class BookCreate(BookBase):
     reading_age: int
     item_weight_pounds: float
     stock_qty: int
-    is_bestseller: bool
+    is_bestseller: bool = Field(False)
     dimensions: List[float]
 
 
@@ -44,9 +48,29 @@ class BookRead(BookBase):
     """Response model for getting a book from DB"""
 
     id: UUID
+    # authors: Optional[List["AuthorSimple"]]
 
 
 class BookUpdate(BookBase):
     """Response model for updating a book"""
 
     ...
+
+
+class BookSchema(BookBase):
+    """Response model for books including authors"""
+
+    authors: List["AuthorSimple"] = []
+
+
+class BookSimple(BaseSchema):
+    """Response model that includes just books ID and title"""
+
+    id: UUID
+    title: str
+
+
+class BookWithGenres(BookRead):
+    """Response model for retrieving an author and including related books"""
+
+    genres: list[GenreWithBook] = []
