@@ -34,4 +34,6 @@ urlpatterns = [
         name="swagger-ui-docs",
     ),
     path("api/v1/books/", include("books.urls")),
+    path("api/v1/genres/", include("genres.urls")),
+    path("api/v1/authors/", include("authors.urls")),
 ]

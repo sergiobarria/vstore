@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework_swagger",
     "books",
+    "genres",
+    "authors",
 ]
 
 MIDDLEWARE = [
