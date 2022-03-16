@@ -1,25 +1,22 @@
 [tool.poetry]
-name = "vstore-api"
+name = "VStore API"
 version = "0.1.0"
-description = "VStore Ecommerce api"
+description = "Backend API for the VStore web & mobile application"
 authors = ["Sergio Barria"]
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-uvicorn = "^0.17.5"
-alembic = "^1.7.6"
-asyncpg = "^0.25.0"
-SQLAlchemy = "^1.4.32"
-psycopg2 = "^2.9.3"
-python-dotenv = "^0.19.2"
-fastapi = "^0.75.0"
+Django = "^4.0.3"
+djangorestframework = "^3.13.1"
+django-cors-headers = "^3.11.0"
+PyYAML = "^6.0"
+django-rest-swagger = "^2.2.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
 black = "^22.1.0"
 isort = "^5.10.1"
-mypy = "^0.931"
-sqlalchemy-stubs = "^0.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
