@@ -54,6 +54,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# Rest Framework settings overwrites
+REST_FRAMEWORK = {
+    "COERCE_DECIMAL_TO_STRING": False,
+}
+
 ROOT_URLCONF = "main.urls"
 
 TEMPLATES = [
