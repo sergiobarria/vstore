@@ -13,8 +13,8 @@ from books.serializers import BookSerializer
 def books_list(request: HttpRequest):
     """List all books in database, or create a new book and save it to database"""
     if request.method == "GET":
-        books = Book.objects.all()
-        serializer = BookSerializer(books, many=True)
+        all_books = Book.objects.all()
+        serializer = BookSerializer(all_books, many=True)
         response = {"status": "success", "data": serializer.data}
 
         return Response(response)
