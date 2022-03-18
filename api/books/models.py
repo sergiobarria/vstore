@@ -23,7 +23,7 @@ class Book(models.Model):
 
     id = models.UUIDField(default=uuid4, unique=True, primary_key=True, editable=False)
     title = models.CharField(max_length=200, db_index=True)
-    summary = models.TextField(max_length=2000)
+    summary = models.TextField()
     hardcover_price = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     paperback_price = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
@@ -52,7 +52,7 @@ class Book(models.Model):
 
     # Relationships
     genres = models.ManyToManyField("genres.Genre", blank=True)
-    authors = models.ManyToManyField("authors.Author", blank=True)
+    authors = models.ManyToManyField("authors.Author", related_name="book_list", blank=True)
 
     # Methods
     def __str__(self):

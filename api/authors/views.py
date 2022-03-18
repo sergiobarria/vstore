@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from authors.models import Author
-from authors.serializers import AuthorSerializer
+from authors.serializers import AuthorDetailSerializer, AuthorSerializer
 
 
 @api_view(["GET", "POST"])
@@ -42,13 +42,13 @@ def author_detail(request: HttpRequest, author_id: UUID):
         return Response(response, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == "GET":
-        serializer = AuthorSerializer(author)
+        serializer = AuthorDetailSerializer(author)
         response = {"status": "success", "data": serializer.data}
 
         return Response(response)
 
     if request.method == "PATCH":
-        serializer = AuthorSerializer(author, data=request.data, partial=True)
+        serializer = AuthorDetailSerializer(author, data=request.data, partial=True)
 
         if not serializer.is_valid():
             response = {"status": "fail", "errors": serializer.errors}

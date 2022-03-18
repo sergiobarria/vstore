@@ -6,11 +6,8 @@ from .models import Book, Language
 class BookAdmin(admin.ModelAdmin):
     """Book representation on the admin site"""
 
-    list_filter = ("title",)
-    # list_display = (
-    #     "title",
-    #     "authors",
-    # )
+    list_filter = ("title", "authors")
+    list_display = ("title", "hardcover_price", "paperback_price")
 
 
 # Register your models here.
