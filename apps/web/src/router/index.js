@@ -1,18 +1,20 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
-
-// Pages
-import HomeView from '@/views/HomeView.vue';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: HomeView,
+    name: 'HomeView',
+    component: () => import('@/views/HomeView.vue'),
+  },
+  {
+    path: '/cart',
+    name: 'CartView',
+    component: () => import('@/views/CartView.vue'),
   },
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 

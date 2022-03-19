@@ -1,0 +1,26 @@
+:root {
+  /* Primary Color */
+  /* Using just the color channels allows to use opacity values with tailwind */
+  --tw-clr-yellow: 255 180 0; /* #ffb400 */
+
+  --clr-primary: rgb(var(var(--tw-clr-yellow)));
+
+  /* Gray variants */
+  --white: #fff;
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #eaeaea;
+  --gray-300: #999;
+  --gray-400: #888;
+  --gray-500: #666;
+  --gray-600: #444;
+  --gray-700: #333;
+  --gray-800: #222;
+  --gray-900: #111;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}

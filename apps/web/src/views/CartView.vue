@@ -1,5 +1,5 @@
 <script setup></script>
 
 <template>
-  <div>From the Home View</div>
+  <div>Hello from the Cart View</div>
 </template>
