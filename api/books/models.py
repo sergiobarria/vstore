@@ -19,13 +19,13 @@ class Book(models.Model):
     """Book model for database"""
 
     class Meta:
-        ordering = ["title"]
+        ordering = ["-published_year", "title"]
 
     id = models.UUIDField(default=uuid4, unique=True, primary_key=True, editable=False)
     title = models.CharField(max_length=200, db_index=True)
     summary = models.TextField()
-    hardcover_price = models.DecimalField(max_digits=5, decimal_places=2, null=True)
-    paperback_price = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    hardcover_price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    paperback_price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
     published_year = models.IntegerField(
         null=False,
@@ -59,6 +59,14 @@ class Book(models.Model):
         """String for representing the Model Object (in admin site)"""
         return self.title
 
-    # def display_genre(self):
-    #     """Creates a string for the Genre model. Required to display genre in admin."""
-    #     return ", ".join([genre.name for genre in self.genres.all()[:3]])
+
+class Image(models.Model):
+    """Model representing book images in database"""
+
+    id = models.UUIDField(default=uuid4, unique=True, primary_key=True, editable=False)
+    book = models.ForeignKey(Book, related_name="images", on_delete=models.CASCADE)
+    url = models.ImageField(upload_to="books/", blank=True, null=True)
+
+    # Methods
+    # def __str__(self):
+    #     return self.url

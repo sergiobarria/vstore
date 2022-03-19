@@ -10,11 +10,11 @@ class Genre(models.Model):
         ordering = ["name"]
 
     id = models.UUIDField(default=uuid4, unique=True, primary_key=True, editable=False)
-    name = models.CharField(max_length=50, null=False, unique=True, db_index=True)
+    name = models.CharField(max_length=50, blank=True, null=False, unique=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     # Methods
     def __str__(self):
         """String for representing the Model Object."""
-        return self.name
+        return self.name.capitalize()

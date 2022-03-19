@@ -1,3 +1,5 @@
+# flake8: noqa
+
 """
 Django settings for main project.
 
@@ -13,6 +15,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from os import path
 from pathlib import Path
 
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,26 +25,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-68x3r&a=gndwb#p9pdmk27-b_%u$e_0qlvjhp-g^ej5c@om8dv"
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = []
 
 
 # Application definition
 
+# fmt: off
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "cloudinary_storage", # third party
     "django.contrib.staticfiles",
+    
+    # Third party
     "rest_framework",
     "corsheaders",
     "rest_framework_swagger",
+    "cloudinary",
+    
+    # Project apps
     "books",
     "genres",
     "authors",
@@ -133,3 +144,16 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Claudinary Credentials
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUD_NAME"),
+    "API_KEY": config("API_KEY"),
+    "API_SECRET": config("API_SECRET")
+}
+
+DEFAULT_FILE_STORAGE =  "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+MEDIA_URL = config("MEDIA_URL")

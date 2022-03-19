@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from books.models import Book
+from books.models import Book, Image
 from books.serializers import BookDetailSerializer, BookSerializer
 
 
@@ -22,11 +22,17 @@ def books_list(request: HttpRequest):
         return Response(response)
 
     if request.method == "POST":
-        serializer = BookSerializer(data=request.data)
+        serializer = BookDetailSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()
+
+        # store images
+        images = request.FILES.getlist("images")
+        for img in images:
+            Image.objects.create(book=serializer, image=img)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
