@@ -46,9 +46,18 @@ class Book(models.Model):
     )
     stock_qty = models.PositiveIntegerField(blank=False, null=False, default=1)
     is_bestseller = models.BooleanField(default=False)
-    # dimensions = update when adding postgres as database
+    rating = models.FloatField(
+        default=4.5,
+        blank=True,
+        null=True,
+        validators=[
+            MinValueValidator(0, message="rating can't be lower than 0"),
+            MaxValueValidator(5.0, message="rating can't be higher that 5.0"),
+        ],
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # dimensions = update when adding postgres as database
 
     # Relationships
     genres = models.ManyToManyField("genres.Genre", blank=True)

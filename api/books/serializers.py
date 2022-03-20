@@ -27,18 +27,7 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = [
-            "id",
-            "title",
-            "hardcover_price",
-            "paperback_price",
-            "published_year",
-            "isbn",
-            "authors",
-            "language",
-            "genres",
-            "images",
-        ]
+        exclude = ["summary"]
 
 
 class BookDetailSerializer(serializers.ModelSerializer):
