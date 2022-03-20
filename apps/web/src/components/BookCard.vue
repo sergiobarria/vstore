@@ -15,7 +15,6 @@ console.log(book);
       'overflow-hidden',
     ]"
   >
-    <BestsellerBanner v-if="book.is_bestseller" />
     <router-link :to="{ name: 'BookDetails', params: { bookId: book.id } }">
       <div class="w-36">
         <img :src="book.images[0]?.url" :alt="book.title" class="w-full" />
@@ -65,5 +64,6 @@ console.log(book);
         </span>
       </div>
     </div>
+    <BestsellerBanner v-if="book.is_bestseller" />
   </article>
 </template>

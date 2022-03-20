@@ -3,7 +3,7 @@
 <template>
   <div
     :class="[
-      'absolute top-4 -left-10 bg-yellow-500 px-12 text-white',
+      'absolute top-4 -left-12 bg-yellow-500 px-12 text-white',
       '-rotate-[30deg]',
     ]"
   >
