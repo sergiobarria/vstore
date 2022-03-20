@@ -1,17 +1,13 @@
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 import router from './router';
 
 import './index.css';
 
 import App from './App.vue';
 
-let app;
-
-// Create Vue App
-app = createApp(App);
-
-// Modules
-app.use(router);
-
-// Mount App
-app.mount('#app');
+// prettier-ignore
+createApp(App)
+  .use(router)
+  .use(createPinia())
+  .mount('#app');

@@ -1,12 +1,12 @@
 <script setup>
-import TheNavbar from './TheNavbar.vue';
-import TheFooter from './TheFooter.vue';
+import AppNavbar from './AppNavbar.vue';
+import AppFooter from './AppFooter.vue';
 </script>
 
 <template>
-  <the-navbar />
+  <AppNavbar />
   <main class="mx-auto w-full max-w-screen-xl">
     <router-view />
   </main>
-  <the-footer />
+  <AppFooter />
 </template>

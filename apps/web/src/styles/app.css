@@ -2,8 +2,10 @@
   /* Primary Color */
   /* Using just the color channels allows to use opacity values with tailwind */
   --tw-clr-yellow: 255 180 0; /* #ffb400 */
+  --tw-clr-darkBlue: 0 113 133; /* #007185 */
 
   --clr-primary: rgb(var(var(--tw-clr-yellow)));
+  --clr-accent: rgb(var(var(--tw-clr-darkBlue)));
 
   /* Gray variants */
   --white: #fff;

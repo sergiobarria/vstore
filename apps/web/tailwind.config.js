@@ -18,6 +18,7 @@ module.exports = {
       },
       colors: {
         primary: withOpacityValue('--tw-clr-yellow'),
+        accent: withOpacityValue('--tw-clr-darkBlue'),
         gray: {
           50: 'var(--gray-50)',
           100: 'var(--gray-100)',
