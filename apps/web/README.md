@@ -1,7 +1,35 @@
-# Vue 3 + Vite
+# VStore Web Application
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+> VStore ecommerce book store client application built with Vue
 
-## Recommended IDE Setup
+## Tech Stack
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+- **UI:** Vue
+- **Styling:** Tailwind CSS
+- **State Management:** Vue [Pinia](https://pinia.vuejs.org/)
+
+## Project Structure
+
+```
+web/
+├── public
+├── src/
+│   ├── assets
+│   ├── components
+│   ├── composables
+│   ├── layout
+│   ├── lib
+│   ├── router
+│   ├── stores
+│   ├── styles
+│   └── views
+├── .eslintrc.js
+├── .prettierrc
+├── index.html
+├── jsconfig.json
+├── package.json
+├── postcss.config.js
+├── README.md
+├── tailwind.config.js
+└── vite.config.js
+```
